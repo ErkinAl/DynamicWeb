@@ -557,16 +557,26 @@ button:hover:before, .btn:hover:before {
 /* Responsive styles */
 @media (max-width: 768px) {
     #map, .search-filter-container, #landmarkList, #planSection {
-        width: 90%;
+        width: 95%;
+    }
+    
+    #map {
+        height: 400px;
     }
     
     .landmark-item {
-        padding: 20px;
+        padding: 16px;
     }
     
     .landmark-actions {
         flex-direction: column;
         align-items: stretch;
+        gap: 5px;
+    }
+    
+    .landmark-actions .btn {
+        margin-top: 5px;
+        width: 100%;
     }
     
     #landmarkList, #visitedLandmarksList {
@@ -584,16 +594,6 @@ button:hover:before, .btn:hover:before {
     .modal-body, .modal-footer {
         padding: 20px;
     }
-}
-
-@media (max-width: 480px) {
-    #map, .search-filter-container, #landmarkList, #planSection {
-        width: 95%;
-    }
-    
-    #map {
-        height: 400px;
-    }
     
     .search-filter-container .row {
         flex-direction: column;
@@ -603,9 +603,71 @@ button:hover:before, .btn:hover:before {
         margin-top: 15px;
     }
     
+    .d-flex.justify-content-end {
+        justify-content: flex-start !important;
+        margin-top: 10px;
+    }
+    
+    /* Improve filter controls on mobile */
+    #filterCategory, #visitedFilterCategory {
+        width: 100%;
+        max-width: 100% !important;
+        margin-bottom: 10px;
+    }
+    
+    /* Adjust form alignment on mobile */
+    .form-check {
+        margin-right: 15px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #map, .search-filter-container, #landmarkList, #planSection {
+        width: 95%;
+    }
+    
+    #map {
+        height: 350px;
+    }
+    
     button, .btn {
-        padding: 10px 16px;
-        font-size: 0.95rem;
+        padding: 8px 14px;
+        font-size: 0.9rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    h3 {
+        font-size: 1.3rem;
+    }
+    
+    /* Make visited landmarks list display as single column */
+    #visitedLandmarksList {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    /* Adjust modal sizing for very small screens */
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    /* Improve form spacing on small devices */
+    .form-control, .form-select {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+    
+    /* Fix spacing on the filters */
+    .search-filter-container {
+        padding: 15px;
+    }
+    
+    /* Better spacing for plan section on small devices */
+    #planSection {
+        padding: 20px 15px;
     }
 }
 
