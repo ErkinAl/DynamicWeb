@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landmark Creator</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Click on the Map to Add Landmarks</h2>
+    <div id="map"></div>
+    
+    <div class="search-filter-container mt-3 mb-3">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" id="landmarkSearch" class="form-control" placeholder="Search landmarks by name...">
+                    <button class="btn btn-primary" onclick="searchLandmarks()">Search</button>
+                    <button class="btn btn-secondary" onclick="clearSearch()">Clear</button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex justify-content-end">
+                    <select id="filterCategory" class="form-select me-2" style="max-width: 200px;">
+                        <option value="">All Categories</option>
+                        <option value="historical">Historical</option>
+                        <option value="natural">Natural</option>
+                        <option value="cultural">Cultural</option>
+                    </select>
+                    <div class="form-check me-2 d-flex align-items-center">
+                        <input class="form-check-input" type="checkbox" id="filterHasNotes">
+                        <label class="form-check-label ms-1" for="filterHasNotes">Has Notes</label>
+                    </div>
+                    <div class="form-check d-flex align-items-center">
+                        <input class="form-check-input" type="checkbox" id="filterVisited">
+                        <label class="form-check-label ms-1" for="filterVisited">Visited</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <h3>Landmarks</h3>
+    <ul id="landmarkList"></ul>
+    
+    <button onclick="openAddNotesModal()">Add Notes</button>
+    <button onclick="openVisitedLandmarksModal()">Visited Landmarks</button>
+    <button onclick="togglePlanSection()">Create Visiting Plans</button>
+
+    <!-- Plan Oluşturma Bölümü -->
+    <div id="planSection">
+        <h3>Landmarks for Visiting</h3>
+        
+        <div class="mb-3">
+            <label for="visitorName" class="form-label">Your Name:</label>
+            <input type="text" class="form-control" id="visitorName" placeholder="Enter your name" required>
+        </div>
+        
+        <div>
+            <h4>Selected Landmarks</h4>
+            <div id="selectedLandmarks" class="mt-3">
+                <!-- Seçilen yerler burada listelenecek -->
+            </div>
+        </div>
+        
+        <button class="btn btn-success mt-3" onclick="savePlan()">Mark Selected as Visited</button>
+    </div>
+
+    <!-- Not Ekle Modal -->
+    <div class="modal fade" id="addNotesModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Notes to Selected Landmarks</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addNotesForm">
+                        <div class="mb-3">
+                            <p><span id="selectedLandmarksCount">0</span> landmarks will be updated with these notes.</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" id="landmarkNote" rows="4" placeholder="Add your notes about these landmarks"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveLandmarkNotes()">Save Notes to All Selected</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Landmark Modal -->
+    <div class="modal fade" id="editLandmarkModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Landmark</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editLandmarkForm">
+                        <input type="hidden" id="editLandmarkId">
+                        <div class="mb-3">
+                            <label for="editLandmarkName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="editLandmarkName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editLandmarkDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editLandmarkDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editLandmarkCategory" class="form-label">Category</label>
+                            <select class="form-select" id="editLandmarkCategory" required>
+                                <option value="historical">Historical</option>
+                                <option value="natural">Natural</option>
+                                <option value="cultural">Cultural</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEditedLandmark()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ziyaret Edilen Yerler Modal -->
+    <div class="modal fade" id="visitedLandmarksModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Visited Landmarks</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Search and Filter options for visited landmarks -->
+                    <div class="search-filter-container mb-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <input type="text" id="visitedLandmarkSearch" class="form-control" placeholder="Search visited landmarks...">
+                                    <button class="btn btn-primary" onclick="searchVisitedLandmarks()">Search</button>
+                                    <button class="btn btn-secondary" onclick="clearVisitedSearch()">Clear</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-end">
+                                    <select id="visitedFilterCategory" class="form-select me-2" style="max-width: 200px;">
+                                        <option value="">All Categories</option>
+                                        <option value="historical">Historical</option>
+                                        <option value="natural">Natural</option>
+                                        <option value="cultural">Cultural</option>
+                                    </select>
+                                    <div class="form-check me-2 d-flex align-items-center">
+                                        <input class="form-check-input" type="checkbox" id="visitedFilterHasLandmarkNotes">
+                                        <label class="form-check-label ms-1" for="visitedFilterHasLandmarkNotes">Has Landmark Notes</label>
+                                    </div>
+                                    <div class="form-check me-2 d-flex align-items-center">
+                                        <input class="form-check-input" type="checkbox" id="visitedFilterHasVisitNotes">
+                                        <label class="form-check-label ms-1" for="visitedFilterHasVisitNotes">Has Visit Notes</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Visitor Name Filter -->
+                    <div class="input-group mt-2">
+                        <span class="input-group-text">Search by Visitor:</span>
+                        <input type="text" id="visitorNameFilter" class="form-control" placeholder="Filter by visitor name">
+                        <button class="btn btn-outline-primary" onclick="applyVisitedFilters()">Apply</button>
+                    </div>
+                    
+                    <!-- Results count indicator -->
+                    <div id="visitedFilterResults" class="alert alert-info mb-3" style="display: none;"></div>
+                    
+                    <div id="visitedLandmarksList" class="list-group">
+                        <!-- Ziyaret edilen yerler burada listelenecek -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html> 
