@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlyTicket - Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">✈ FlyTicket Admin</div>
+            <div class="nav-links admin-nav-links">
+                <a href="index.html" class="admin-nav-btn">Back to Home</a>
+                <button id="logoutBtn" class="logout-btn admin-nav-btn">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <main id="adminPanel">
+        <section class="admin-section">
+            <h2>Manage Flights</h2>
+            
+            <!-- Add Flight Form -->
+            <div class="admin-form-container">
+                <h3>Add New Flight</h3>
+                <form id="addFlightForm">
+                    <div class="form-group">
+                        <label for="fromCity">From City</label>
+                        <select id="fromCity" required>
+                            <option value="">Select departure city</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="toCity">To City</label>
+                        <select id="toCity" required>
+                            <option value="">Select arrival city</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="departureTime">Departure Time</label>
+                        <input type="datetime-local" id="departureTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="arrivalTime">Arrival Time</label>
+                        <input type="datetime-local" id="arrivalTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Price (₺)</label>
+                        <input type="number" id="price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="seatsAvailable">Seats Available</label>
+                        <input type="number" id="seatsAvailable" required>
+                    </div>
+                    <button type="submit">Add Flight</button>
+                </form>
+            </div>
+
+            <!-- Flights List -->
+            <div class="flights-table-container">
+                <h3>Current Flights</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Departure</th>
+                            <th>Arrival</th>
+                            <th>Price</th>
+                            <th>Seats</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flightsList">
+                        <!-- Flights will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Edit Flight Modal -->
+    <div id="editFlightModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Flight</h2>
+            <form id="editFlightForm">
+                <input type="hidden" id="editFlightId">
+                <div class="form-group">
+                    <label for="editFromCity">From City</label>
+                    <select id="editFromCity" required>
+                        <option value="">Select departure city</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editToCity">To City</label>
+                    <select id="editToCity" required>
+                        <option value="">Select arrival city</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editDepartureTime">Departure Time</label>
+                    <input type="datetime-local" id="editDepartureTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="editArrivalTime">Arrival Time</label>
+                    <input type="datetime-local" id="editArrivalTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPrice">Price (₺)</label>
+                    <input type="number" id="editPrice" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSeatsAvailable">Seats Available</label>
+                    <input type="number" id="editSeatsAvailable" required>
+                </div>
+                <button type="submit">Update Flight</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html> 

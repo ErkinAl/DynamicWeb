@@ -153,16 +153,51 @@ main {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.5);
-    z-index: 1001;
+    z-index: 9999;
+    overflow: auto;
 }
 
 .modal-content {
     background-color: #fff;
-    margin: 10% auto;
+    margin: 15% auto;
     padding: 2rem;
     border-radius: 10px;
     max-width: 500px;
     position: relative;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.modal-content h2 {
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+}
+
+.modal-content .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.modal-content button[type="submit"] {
+    background-color: #3498db;
+    color: #fff;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.modal-content button[type="submit"]:hover {
+    background-color: #2980b9;
 }
 
 .close {
@@ -172,6 +207,11 @@ main {
     font-size: 1.5rem;
     cursor: pointer;
     color: #666;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #333;
 }
 
 /* Footer Styles */
@@ -201,4 +241,197 @@ footer {
         margin: 20% auto;
         width: 90%;
     }
+}
+
+/* --- Admin Panel Enhancements --- */
+.admin-section {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(37, 99, 235, 0.08), 0 1.5px 4px rgba(30, 64, 175, 0.06);
+    padding: 2.5rem 2rem 2rem 2rem;
+    margin-bottom: 2.5rem;
+    margin-top: 1.5rem;
+}
+
+.admin-form-container {
+    background: var(--light-bg);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.07);
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.admin-form-container h3 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.admin-form-container form button[type="submit"],
+.admin-form-container button[type="submit"],
+button.edit-btn, button.delete-btn {
+    background: linear-gradient(90deg, var(--primary-color) 60%, var(--secondary-color) 100%);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    margin-right: 0.5rem;
+}
+
+.admin-form-container form button[type="submit"]:hover,
+.admin-form-container button[type="submit"]:hover,
+button.edit-btn:hover, button.delete-btn:hover {
+    background: linear-gradient(90deg, var(--secondary-color) 60%, var(--primary-color) 100%);
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.13);
+    transform: translateY(-2px) scale(1.03);
+}
+
+.flights-table-container {
+    background: var(--light-bg);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.07);
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+}
+
+.flights-table-container h3 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.06);
+}
+
+thead {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+th, td {
+    padding: 1rem 0.75rem;
+    text-align: left;
+}
+
+th {
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    background: var(--primary-color);
+    color: #fff;
+    border-bottom: 2px solid var(--secondary-color);
+}
+
+tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+    transition: background 0.2s;
+}
+
+tbody tr:hover {
+    background: #f0f6ff;
+}
+
+td {
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+button.edit-btn {
+    background: linear-gradient(90deg, #22c55e 60%, #16a34a 100%);
+    margin-right: 0.5rem;
+}
+
+button.edit-btn:hover {
+    background: linear-gradient(90deg, #16a34a 60%, #22c55e 100%);
+}
+
+button.delete-btn {
+    background: linear-gradient(90deg, #ef4444 60%, #b91c1c 100%);
+}
+
+button.delete-btn:hover {
+    background: linear-gradient(90deg, #b91c1c 60%, #ef4444 100%);
+}
+
+/* Responsive admin panel */
+@media (max-width: 768px) {
+    .admin-section, .admin-form-container, .flights-table-container {
+        padding: 1rem 0.5rem;
+    }
+    th, td {
+        padding: 0.7rem 0.3rem;
+    }
+}
+
+/* --- Enhanced Admin Nav Buttons --- */
+.admin-nav-links {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.admin-nav-btn {
+    display: inline-block;
+    padding: 0.6rem 1.4rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    background: linear-gradient(90deg, var(--primary-color) 60%, var(--secondary-color) 100%);
+    color: #fff !important;
+    border: none;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    cursor: pointer;
+}
+
+.admin-nav-btn:hover {
+    background: linear-gradient(90deg, var(--secondary-color) 60%, var(--primary-color) 100%);
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.13);
+    transform: translateY(-2px) scale(1.03);
+    color: #fff;
+}
+
+.logout-btn {
+    background: linear-gradient(90deg, #ef4444 60%, #b91c1c 100%) !important;
+    color: #fff !important;
+}
+
+.logout-btn:hover {
+    background: linear-gradient(90deg, #b91c1c 60%, #ef4444 100%) !important;
+    color: #fff !important;
+}
+
+/* --- Enhanced Main Nav Buttons --- */
+.nav-links .main-nav-btn {
+    display: inline-block;
+    padding: 0.6rem 1.4rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    background: linear-gradient(90deg, var(--primary-color) 60%, var(--secondary-color) 100%);
+    color: #fff !important;
+    border: none;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    cursor: pointer;
+    margin-left: 1rem;
+}
+
+.nav-links .main-nav-btn:hover, .nav-links .main-nav-btn.active {
+    background: linear-gradient(90deg, var(--secondary-color) 60%, var(--primary-color) 100%);
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.13);
+    transform: translateY(-2px) scale(1.03);
+    color: #fff;
 } 

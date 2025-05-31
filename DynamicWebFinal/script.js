@@ -1,3 +1,6 @@
+// API base URL
+const API_BASE_URL = 'http://localhost:3000/api';
+
 // Turkish cities array
 const turkishCities = [
     "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin", "Aydın", "Balıkesir",
@@ -21,18 +24,26 @@ const bookingForm = document.getElementById('bookingForm');
 const closeButtons = document.querySelectorAll('.close');
 
 // Initialize city dropdowns
-function initializeCityDropdowns() {
-    turkishCities.forEach(city => {
-        const fromOption = document.createElement('option');
-        fromOption.value = city;
-        fromOption.textContent = city;
-        fromCitySelect.appendChild(fromOption);
+async function initializeCityDropdowns() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/flights/cities`);
+        const cities = await response.json();
+        
+        cities.forEach(city => {
+            const fromOption = document.createElement('option');
+            fromOption.value = city.city_name;
+            fromOption.textContent = city.city_name;
+            fromCitySelect.appendChild(fromOption);
 
-        const toOption = document.createElement('option');
-        toOption.value = city;
-        toOption.textContent = city;
-        toCitySelect.appendChild(toOption);
-    });
+            const toOption = document.createElement('option');
+            toOption.value = city.city_name;
+            toOption.textContent = city.city_name;
+            toCitySelect.appendChild(toOption);
+        });
+    } catch (error) {
+        console.error('Error fetching cities:', error);
+        alert('Failed to load cities. Please refresh the page.');
+    }
 }
 
 // Set minimum date to today
@@ -55,15 +66,19 @@ async function handleFlightSearch(e) {
     }
 
     try {
-        // In a real application, this would be an API call
-        const response = await fetch(`/api/flights?from=${fromCity}&to=${toCity}&date=${date}`);
-        const flights = await response.json();
+        const response = await fetch(
+            `${API_BASE_URL}/flights?from=${encodeURIComponent(fromCity)}&to=${encodeURIComponent(toCity)}&date=${date}`
+        );
         
+        if (!response.ok) {
+            throw new Error('Failed to fetch flights');
+        }
+
+        const flights = await response.json();
         displayFlights(flights);
     } catch (error) {
         console.error('Error fetching flights:', error);
-        // For demo purposes, show mock data
-        displayMockFlights(fromCity, toCity, date);
+        alert('Failed to fetch flights. Please try again.');
     }
 }
 
@@ -71,45 +86,26 @@ async function handleFlightSearch(e) {
 function displayFlights(flights) {
     flightsList.innerHTML = '';
     
+    if (flights.length === 0) {
+        flightsList.innerHTML = '<p class="no-flights">No flights found for the selected criteria.</p>';
+        return;
+    }
+    
     flights.forEach(flight => {
         const flightCard = document.createElement('div');
         flightCard.className = 'flight-card';
         flightCard.innerHTML = `
-            <h3>${flight.from} → ${flight.to}</h3>
-            <p>Departure: ${new Date(flight.departureTime).toLocaleString()}</p>
-            <p>Arrival: ${new Date(flight.arrivalTime).toLocaleString()}</p>
+            <h3>${flight.from_city.city_name} → ${flight.to_city.city_name}</h3>
+            <p>Departure: ${new Date(flight.departure_time).toLocaleString()}</p>
+            <p>Arrival: ${new Date(flight.arrival_time).toLocaleString()}</p>
             <p>Price: ₺${flight.price}</p>
-            <p>Available Seats: ${flight.seatsAvailable}</p>
-            <button onclick="openBookingModal('${flight.id}')" class="search-btn">Book Now</button>
+            <p>Available Seats: ${flight.seats_available}</p>
+            <button onclick="openBookingModal('${flight._id}')" class="search-btn" ${flight.seats_available <= 0 ? 'disabled' : ''}>
+                ${flight.seats_available <= 0 ? 'No Seats Available' : 'Book Now'}
+            </button>
         `;
         flightsList.appendChild(flightCard);
     });
-}
-
-// Display mock flights for demo
-function displayMockFlights(fromCity, toCity, date) {
-    const mockFlights = [
-        {
-            id: '1',
-            from: fromCity,
-            to: toCity,
-            departureTime: new Date(date + 'T10:00:00'),
-            arrivalTime: new Date(date + 'T12:00:00'),
-            price: 1500,
-            seatsAvailable: 45
-        },
-        {
-            id: '2',
-            from: fromCity,
-            to: toCity,
-            departureTime: new Date(date + 'T14:00:00'),
-            arrivalTime: new Date(date + 'T16:00:00'),
-            price: 1800,
-            seatsAvailable: 32
-        }
-    ];
-    
-    displayFlights(mockFlights);
 }
 
 // Open booking modal
@@ -137,8 +133,7 @@ async function handleBooking(e) {
     };
 
     try {
-        // In a real application, this would be an API call
-        const response = await fetch('/api/tickets', {
+        const response = await fetch(`${API_BASE_URL}/tickets`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -146,16 +141,21 @@ async function handleBooking(e) {
             body: JSON.stringify(bookingData)
         });
 
-        if (response.ok) {
-            alert('Booking successful! Check your email for the ticket.');
-            bookingModal.style.display = 'none';
-            bookingForm.reset();
-        } else {
-            throw new Error('Booking failed');
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Booking failed');
         }
+
+        const result = await response.json();
+        alert('Booking successful! Check your email for the ticket.');
+        bookingModal.style.display = 'none';
+        bookingForm.reset();
+        
+        // Refresh flight list to update available seats
+        handleFlightSearch(new Event('submit'));
     } catch (error) {
         console.error('Error booking flight:', error);
-        alert('Failed to book flight. Please try again.');
+        alert(error.message || 'Failed to book flight. Please try again.');
     }
 }
 
