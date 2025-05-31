@@ -77,11 +77,11 @@
             <h2>Book Your Flight</h2>
             <form id="bookingForm">
                 <div class="form-group">
-                    <label for="passengerName">First Name</label>
+                    <label for="passengerName">Name</label>
                     <input type="text" id="passengerName" required>
                 </div>
                 <div class="form-group">
-                    <label for="passengerSurname">Last Name</label>
+                    <label for="passengerSurname">Surname</label>
                     <input type="text" id="passengerSurname" required>
                 </div>
                 <div class="form-group">
@@ -89,10 +89,29 @@
                     <input type="email" id="passengerEmail" required>
                 </div>
                 <div class="form-group">
-                    <label for="seatNumber">Seat Number (Optional)</label>
-                    <input type="text" id="seatNumber">
+                    <label>Select Your Seat</label>
+                    <div id="seatMap" class="seat-map">
+                        <div class="seat-map-legend">
+                            <div class="legend-item">
+                                <div class="seat available"></div>
+                                <span>Available</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="seat occupied"></div>
+                                <span>Occupied</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="seat selected"></div>
+                                <span>Selected</span>
+                            </div>
+                        </div>
+                        <div id="seatGrid" class="seat-grid">
+                            <!-- Seats will be dynamically added here -->
+                        </div>
+                    </div>
+                    <input type="hidden" id="seatNumber" required>
                 </div>
-                <button type="submit">Confirm Booking</button>
+                <button type="submit" class="search-btn">Book Now</button>
             </form>
         </div>
     </div>

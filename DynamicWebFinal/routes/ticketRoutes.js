@@ -68,4 +68,15 @@ router.get('/:email', async (req, res) => {
     }
 });
 
+// Get tickets by flight ID
+router.get('/flight/:flightId', async (req, res) => {
+    try {
+        const tickets = await Ticket.find({ flight: req.params.flightId })
+            .select('seat_number');
+        res.json(tickets);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router; 

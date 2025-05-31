@@ -179,7 +179,7 @@ function displayFlights(flights) {
             <td>${new Date(flight.departure_time).toLocaleString()}</td>
             <td>${new Date(flight.arrival_time).toLocaleString()}</td>
             <td>₺${flight.price}</td>
-            <td>${flight.seats_available}</td>
+            <td>${flight.seats_available} / ${flight.seats_total}</td>
             <td>
                 <button onclick="editFlight('${flight._id}')" class="edit-btn">Edit</button>
                 <button onclick="deleteFlight('${flight._id}')" class="delete-btn">Delete</button>
@@ -194,9 +194,12 @@ async function handleAddFlight(e) {
     e.preventDefault();
     
     const seatsTotal = document.getElementById('seatsAvailable').value;
+    const fromCitySelect = document.getElementById('fromCity');
+    const toCitySelect = document.getElementById('toCity');
+    
     const flightData = {
-        from_city: document.getElementById('fromCity').value,
-        to_city: document.getElementById('toCity').value,
+        from_city: fromCitySelect.options[fromCitySelect.selectedIndex].text,
+        to_city: toCitySelect.options[toCitySelect.selectedIndex].text,
         departure_time: document.getElementById('departureTime').value,
         arrival_time: document.getElementById('arrivalTime').value,
         price: document.getElementById('price').value,
@@ -231,26 +234,18 @@ async function handleAddFlight(e) {
 // Edit flight
 async function editFlight(flightId) {
     try {
-        const response = await fetch(`${API_BASE_URL}/flights/${flightId}`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-            }
-        });
-
+        const response = await fetch(`${API_BASE_URL}/flights/${flightId}`);
         if (!response.ok) {
             throw new Error('Failed to fetch flight details');
         }
-
         const flight = await response.json();
-        
         document.getElementById('editFlightId').value = flight._id;
-        document.getElementById('editFromCity').value = flight.from_city.city_name;
-        document.getElementById('editToCity').value = flight.to_city.city_name;
+        document.getElementById('editFromCity').value = flight.from_city._id;
+        document.getElementById('editToCity').value = flight.to_city._id;
         document.getElementById('editDepartureTime').value = flight.departure_time;
         document.getElementById('editArrivalTime').value = flight.arrival_time;
         document.getElementById('editPrice').value = flight.price;
         document.getElementById('editSeatsAvailable').value = flight.seats_available;
-        
         document.getElementById('editFlightModal').style.display = 'block';
     } catch (error) {
         console.error('Error fetching flight details:', error);
@@ -261,9 +256,13 @@ async function editFlight(flightId) {
 // Handle flight update
 async function handleUpdateFlight(e) {
     e.preventDefault();
-    
     const flightId = document.getElementById('editFlightId').value;
-    const seatsTotal = document.getElementById('editSeatsAvailable').value;
+    const seatsTotal = parseInt(document.getElementById('editSeatsAvailable').value);
+    const currentFlight = await fetch(`${API_BASE_URL}/flights/${flightId}`).then(res => res.json());
+    
+    // Calculate the difference in seats
+    const seatDifference = seatsTotal - currentFlight.seats_total;
+    
     const flightData = {
         from_city: document.getElementById('editFromCity').value,
         to_city: document.getElementById('editToCity').value,
@@ -271,7 +270,7 @@ async function handleUpdateFlight(e) {
         arrival_time: document.getElementById('editArrivalTime').value,
         price: document.getElementById('editPrice').value,
         seats_total: seatsTotal,
-        seats_available: seatsTotal
+        seats_available: currentFlight.seats_available + seatDifference // Adjust available seats by the difference
     };
 
     try {
@@ -283,12 +282,10 @@ async function handleUpdateFlight(e) {
             },
             body: JSON.stringify(flightData)
         });
-
         if (!response.ok) {
             const error = await response.json();
             throw new Error(error.message || 'Failed to update flight');
         }
-
         alert('Flight updated successfully');
         document.getElementById('editFlightModal').style.display = 'none';
         loadFlights();
@@ -303,7 +300,6 @@ async function deleteFlight(flightId) {
     if (!confirm('Are you sure you want to delete this flight?')) {
         return;
     }
-
     try {
         const response = await fetch(`${API_BASE_URL}/flights/${flightId}`, {
             method: 'DELETE',
@@ -311,11 +307,9 @@ async function deleteFlight(flightId) {
                 'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
             }
         });
-
         if (!response.ok) {
             throw new Error('Failed to delete flight');
         }
-
         alert('Flight deleted successfully');
         loadFlights();
     } catch (error) {
@@ -363,22 +357,22 @@ async function initializeAdminCityDropdowns() {
         const cities = await response.json();
         cities.forEach(city => {
             const fromOption = document.createElement('option');
-            fromOption.value = city.city_name;
+            fromOption.value = city._id;
             fromOption.textContent = city.city_name;
             fromCitySelect.appendChild(fromOption);
             if (editFromCitySelect) {
                 const editFromOption = document.createElement('option');
-                editFromOption.value = city.city_name;
+                editFromOption.value = city._id;
                 editFromOption.textContent = city.city_name;
                 editFromCitySelect.appendChild(editFromOption);
             }
             const toOption = document.createElement('option');
-            toOption.value = city.city_name;
+            toOption.value = city._id;
             toOption.textContent = city.city_name;
             toCitySelect.appendChild(toOption);
             if (editToCitySelect) {
                 const editToOption = document.createElement('option');
-                editToOption.value = city.city_name;
+                editToOption.value = city._id;
                 editToOption.textContent = city.city_name;
                 editToCitySelect.appendChild(editToOption);
             }

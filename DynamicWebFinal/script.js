@@ -99,7 +99,8 @@ function displayFlights(flights) {
             <p>Departure: ${new Date(flight.departure_time).toLocaleString()}</p>
             <p>Arrival: ${new Date(flight.arrival_time).toLocaleString()}</p>
             <p>Price: ₺${flight.price}</p>
-            <p>Available Seats: ${flight.seats_available}</p>
+            <p>Total Seats: ${flight.seats_total}</p>
+            <p>Available Seats: ${flight.seats_available} / ${flight.seats_total}</p>
             <button onclick="openBookingModal('${flight._id}')" class="search-btn" ${flight.seats_available <= 0 ? 'disabled' : ''}>
                 ${flight.seats_available <= 0 ? 'No Seats Available' : 'Book Now'}
             </button>
@@ -109,9 +110,52 @@ function displayFlights(flights) {
 }
 
 // Open booking modal
-function openBookingModal(flightId) {
-    bookingModal.style.display = 'block';
-    bookingForm.dataset.flightId = flightId;
+async function openBookingModal(flightId) {
+    try {
+        // Fetch flight details to get total seats
+        const response = await fetch(`${API_BASE_URL}/flights/${flightId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch flight details');
+        }
+        const flight = await response.json();
+
+        // Fetch booked seats for this flight
+        const ticketsResponse = await fetch(`${API_BASE_URL}/tickets/flight/${flightId}`);
+        if (!ticketsResponse.ok) {
+            throw new Error('Failed to fetch booked seats');
+        }
+        const tickets = await ticketsResponse.json();
+        const bookedSeats = tickets.map(ticket => ticket.seat_number);
+
+        // Generate seat grid
+        const seatGrid = document.getElementById('seatGrid');
+        seatGrid.innerHTML = '';
+        
+        for (let i = 1; i <= flight.seats_total; i++) {
+            const seat = document.createElement('div');
+            seat.className = `seat ${bookedSeats.includes(i.toString()) ? 'occupied' : 'available'}`;
+            seat.textContent = i;
+            
+            if (!bookedSeats.includes(i.toString())) {
+                seat.addEventListener('click', () => {
+                    // Remove selected class from all seats
+                    document.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+                    // Add selected class to clicked seat
+                    seat.classList.add('selected');
+                    // Update hidden input
+                    document.getElementById('seatNumber').value = i;
+                });
+            }
+            
+            seatGrid.appendChild(seat);
+        }
+
+        bookingModal.style.display = 'block';
+        bookingForm.dataset.flightId = flightId;
+    } catch (error) {
+        console.error('Error opening booking modal:', error);
+        alert('Failed to load seat selection. Please try again.');
+    }
 }
 
 // Handle booking submission
@@ -123,6 +167,11 @@ async function handleBooking(e) {
     const passengerSurname = document.getElementById('passengerSurname').value;
     const passengerEmail = document.getElementById('passengerEmail').value;
     const seatNumber = document.getElementById('seatNumber').value;
+
+    if (!seatNumber) {
+        alert('Please select a seat');
+        return;
+    }
 
     const bookingData = {
         flightId,

@@ -34,6 +34,7 @@ router.get('/', async (req, res) => {
         const flights = await Flight.find(query)
             .populate('from_city', 'city_name')
             .populate('to_city', 'city_name')
+            .select('from_city to_city departure_time arrival_time price seats_total seats_available')
             .sort({ departure_time: 1 });
 
         res.json(flights);
@@ -99,12 +100,21 @@ router.put('/:id', auth, async (req, res) => {
             return res.status(404).json({ message: 'Flight not found' });
         }
 
+        const { seats_total, seats_available } = req.body;
+
         // Update fields
         Object.keys(req.body).forEach(key => {
-            if (key !== 'seats_available') {
+            if (key !== 'seats_available' && key !== 'seats_total') {
                 flight[key] = req.body[key];
             }
         });
+
+        // Handle seat updates
+        if (seats_total !== undefined) {
+            const seatDifference = seats_total - flight.seats_total;
+            flight.seats_total = seats_total;
+            flight.seats_available = seats_available;
+        }
 
         const updatedFlight = await flight.save();
         res.json(updatedFlight);
@@ -124,7 +134,8 @@ router.delete('/:id', auth, async (req, res) => {
         // Delete all tickets for this flight
         await Ticket.deleteMany({ flight: flight._id });
 
-        await flight.remove();
+        // Delete the flight using deleteOne
+        await Flight.deleteOne({ _id: flight._id });
         res.json({ message: 'Flight and related tickets deleted' });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -139,6 +150,21 @@ router.get('/cities', async (req, res) => {
     } catch (error) {
         console.error('Error fetching cities:', error);
         res.status(500).json({ message: 'Error fetching cities' });
+    }
+});
+
+// Get a single flight by ID
+router.get('/:id', async (req, res) => {
+    try {
+        const flight = await Flight.findById(req.params.id)
+            .populate('from_city', 'city_name')
+            .populate('to_city', 'city_name');
+        if (!flight) {
+            return res.status(404).json({ message: 'Flight not found' });
+        }
+        res.json(flight);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
 
