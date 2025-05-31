@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlyTicket - Book Your Flight</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">✈ FlyTicket</div>
+            <div class="nav-links">
+                <a href="#" class="active">Home</a>
+                <a href="#" id="adminLink">Admin Panel</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="search-section">
+            <h1>Find Your Perfect Flight</h1>
+            <div class="search-container">
+                <form id="searchForm">
+                    <div class="form-group">
+                        <label for="fromCity">From</label>
+                        <select id="fromCity" required>
+                            <option value="">Select departure city</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="toCity">To</label>
+                        <select id="toCity" required>
+                            <option value="">Select arrival city</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="departureDate">Date</label>
+                        <input type="date" id="departureDate" required>
+                    </div>
+                    <button type="submit" class="search-btn">Search Flights</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="flights-section">
+            <div id="flightsList" class="flights-grid">
+                <!-- Flight cards will be dynamically added here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Admin Login</h2>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Book Your Flight</h2>
+            <form id="bookingForm">
+                <div class="form-group">
+                    <label for="passengerName">First Name</label>
+                    <input type="text" id="passengerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="passengerSurname">Last Name</label>
+                    <input type="text" id="passengerSurname" required>
+                </div>
+                <div class="form-group">
+                    <label for="passengerEmail">Email</label>
+                    <input type="email" id="passengerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="seatNumber">Seat Number (Optional)</label>
+                    <input type="text" id="seatNumber">
+                </div>
+                <button type="submit">Confirm Booking</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 FlyTicket. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html> 
