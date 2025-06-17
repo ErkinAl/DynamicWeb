@@ -193,13 +193,29 @@ function displayFlights(flights) {
 async function handleAddFlight(e) {
     e.preventDefault();
     
+    const fromCity = document.getElementById('fromCity').value;
+    const toCity = document.getElementById('toCity').value;
+
+    // Check if cities are the same
+    if (fromCity === toCity) {
+        alert('Departure and arrival cities cannot be the same');
+        return;
+    }
+
+    const departureTime = new Date(document.getElementById('departureTime').value);
+    const arrivalTime = new Date(document.getElementById('arrivalTime').value);
+
+    // Validate departure and arrival times
+    if (departureTime >= arrivalTime) {
+        alert('Departure time must be before arrival time');
+        return;
+    }
+
     const seatsTotal = document.getElementById('seatsAvailable').value;
-    const fromCitySelect = document.getElementById('fromCity');
-    const toCitySelect = document.getElementById('toCity');
     
     const flightData = {
-        from_city: fromCitySelect.options[fromCitySelect.selectedIndex].text,
-        to_city: toCitySelect.options[toCitySelect.selectedIndex].text,
+        from_city: fromCity,
+        to_city: toCity,
         departure_time: document.getElementById('departureTime').value,
         arrival_time: document.getElementById('arrivalTime').value,
         price: document.getElementById('price').value,
@@ -257,6 +273,24 @@ async function editFlight(flightId) {
 async function handleUpdateFlight(e) {
     e.preventDefault();
     const flightId = document.getElementById('editFlightId').value;
+    const fromCity = document.getElementById('editFromCity').value;
+    const toCity = document.getElementById('editToCity').value;
+
+    // Check if cities are the same
+    if (fromCity === toCity) {
+        alert('Departure and arrival cities cannot be the same');
+        return;
+    }
+
+    const departureTime = new Date(document.getElementById('editDepartureTime').value);
+    const arrivalTime = new Date(document.getElementById('editArrivalTime').value);
+
+    // Validate departure and arrival times
+    if (departureTime >= arrivalTime) {
+        alert('Departure time must be before arrival time');
+        return;
+    }
+
     const seatsTotal = parseInt(document.getElementById('editSeatsAvailable').value);
     const currentFlight = await fetch(`${API_BASE_URL}/flights/${flightId}`).then(res => res.json());
     
@@ -264,8 +298,8 @@ async function handleUpdateFlight(e) {
     const seatDifference = seatsTotal - currentFlight.seats_total;
     
     const flightData = {
-        from_city: document.getElementById('editFromCity').value,
-        to_city: document.getElementById('editToCity').value,
+        from_city: fromCity,
+        to_city: toCity,
         departure_time: document.getElementById('editDepartureTime').value,
         arrival_time: document.getElementById('editArrivalTime').value,
         price: document.getElementById('editPrice').value,
@@ -341,8 +375,100 @@ if (logoutBtn) {
 if (adminPanel) {
     console.log('Admin panel found, initializing...');
     checkAuth();
+    initializeDateTimeValidation();
 } else {
     console.log('Not on admin panel page');
+}
+
+// Add datetime validation
+function initializeDateTimeValidation() {
+    const departureTimeInput = document.getElementById('departureTime');
+    const arrivalTimeInput = document.getElementById('arrivalTime');
+    const editDepartureTimeInput = document.getElementById('editDepartureTime');
+    const editArrivalTimeInput = document.getElementById('editArrivalTime');
+    const fromCitySelect = document.getElementById('fromCity');
+    const toCitySelect = document.getElementById('toCity');
+    const editFromCitySelect = document.getElementById('editFromCity');
+    const editToCitySelect = document.getElementById('editToCity');
+
+    // Set min and max dates for datetime inputs
+    const currentDate = new Date();
+    const oneYearFromNow = new Date();
+    oneYearFromNow.setFullYear(currentDate.getFullYear() + 1);
+
+    const minDate = currentDate.toISOString().slice(0, 16);
+    const maxDate = oneYearFromNow.toISOString().slice(0, 16);
+
+    // Set min and max for add flight form
+    if (departureTimeInput) {
+        departureTimeInput.min = minDate;
+        departureTimeInput.max = maxDate;
+    }
+    if (arrivalTimeInput) {
+        arrivalTimeInput.min = minDate;
+        arrivalTimeInput.max = maxDate;
+    }
+
+    // Set min and max for edit flight form
+    if (editDepartureTimeInput) {
+        editDepartureTimeInput.min = minDate;
+        editDepartureTimeInput.max = maxDate;
+    }
+    if (editArrivalTimeInput) {
+        editArrivalTimeInput.min = minDate;
+        editArrivalTimeInput.max = maxDate;
+    }
+
+    // Function to validate times
+    function validateTimes(departureInput, arrivalInput) {
+        const departureTime = new Date(departureInput.value);
+        const arrivalTime = new Date(arrivalInput.value);
+        const currentDate = new Date();
+        const oneYearFromNow = new Date();
+        oneYearFromNow.setFullYear(currentDate.getFullYear() + 1);
+
+        if (departureTime < currentDate) {
+            departureInput.setCustomValidity('Departure time cannot be in the past');
+        } else if (departureTime > oneYearFromNow) {
+            departureInput.setCustomValidity('Flights cannot be scheduled more than one year in advance');
+        } else if (departureTime >= arrivalTime) {
+            arrivalInput.setCustomValidity('Arrival time must be after departure time');
+        } else {
+            departureInput.setCustomValidity('');
+            arrivalInput.setCustomValidity('');
+        }
+    }
+
+    // Function to validate cities
+    function validateCities(fromSelect, toSelect) {
+        if (fromSelect.value === toSelect.value) {
+            toSelect.setCustomValidity('Departure and arrival cities cannot be the same');
+        } else {
+            toSelect.setCustomValidity('');
+        }
+    }
+
+    // Add event listeners for add flight form
+    if (departureTimeInput && arrivalTimeInput) {
+        departureTimeInput.addEventListener('change', () => validateTimes(departureTimeInput, arrivalTimeInput));
+        arrivalTimeInput.addEventListener('change', () => validateTimes(departureTimeInput, arrivalTimeInput));
+    }
+
+    if (fromCitySelect && toCitySelect) {
+        fromCitySelect.addEventListener('change', () => validateCities(fromCitySelect, toCitySelect));
+        toCitySelect.addEventListener('change', () => validateCities(fromCitySelect, toCitySelect));
+    }
+
+    // Add event listeners for edit flight form
+    if (editDepartureTimeInput && editArrivalTimeInput) {
+        editDepartureTimeInput.addEventListener('change', () => validateTimes(editDepartureTimeInput, editArrivalTimeInput));
+        editArrivalTimeInput.addEventListener('change', () => validateTimes(editDepartureTimeInput, editArrivalTimeInput));
+    }
+
+    if (editFromCitySelect && editToCitySelect) {
+        editFromCitySelect.addEventListener('change', () => validateCities(editFromCitySelect, editToCitySelect));
+        editToCitySelect.addEventListener('change', () => validateCities(editFromCitySelect, editToCitySelect));
+    }
 }
 
 // --- City Dropdown Initialization for Admin Panel ---

@@ -48,6 +48,32 @@ router.post('/', auth, async (req, res) => {
     try {
         const { from_city, to_city, departure_time, arrival_time, price, seats_total } = req.body;
 
+        // Check if cities are the same
+        if (from_city === to_city) {
+            return res.status(400).json({ message: 'Departure and arrival cities cannot be the same' });
+        }
+
+        // Validate departure and arrival times
+        const departureDate = new Date(departure_time);
+        const arrivalDate = new Date(arrival_time);
+        const currentDate = new Date();
+        const oneYearFromNow = new Date();
+        oneYearFromNow.setFullYear(currentDate.getFullYear() + 1);
+
+        // Check if departure time is in the past
+        if (departureDate < currentDate) {
+            return res.status(400).json({ message: 'Departure time cannot be in the past' });
+        }
+
+        // Check if departure time is too far in the future
+        if (departureDate > oneYearFromNow) {
+            return res.status(400).json({ message: 'Flights cannot be scheduled more than one year in advance' });
+        }
+
+        if (departureDate >= arrivalDate) {
+            return res.status(400).json({ message: 'Departure time must be before arrival time' });
+        }
+
         // Check if cities exist
         const fromCity = await City.findOne({ city_name: from_city });
         const toCity = await City.findOne({ city_name: to_city });
@@ -98,6 +124,34 @@ router.put('/:id', auth, async (req, res) => {
         const flight = await Flight.findById(req.params.id);
         if (!flight) {
             return res.status(404).json({ message: 'Flight not found' });
+        }
+
+        // Check if cities are the same when updating
+        if (req.body.from_city && req.body.to_city && req.body.from_city === req.body.to_city) {
+            return res.status(400).json({ message: 'Departure and arrival cities cannot be the same' });
+        }
+
+        // Validate departure and arrival times if they are being updated
+        if (req.body.departure_time && req.body.arrival_time) {
+            const departureDate = new Date(req.body.departure_time);
+            const arrivalDate = new Date(req.body.arrival_time);
+            const currentDate = new Date();
+            const oneYearFromNow = new Date();
+            oneYearFromNow.setFullYear(currentDate.getFullYear() + 1);
+
+            // Check if departure time is in the past
+            if (departureDate < currentDate) {
+                return res.status(400).json({ message: 'Departure time cannot be in the past' });
+            }
+
+            // Check if departure time is too far in the future
+            if (departureDate > oneYearFromNow) {
+                return res.status(400).json({ message: 'Flights cannot be scheduled more than one year in advance' });
+            }
+
+            if (departureDate >= arrivalDate) {
+                return res.status(400).json({ message: 'Departure time must be before arrival time' });
+            }
         }
 
         const { seats_total, seats_available } = req.body;
